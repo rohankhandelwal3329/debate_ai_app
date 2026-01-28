@@ -27,13 +27,7 @@ export class UIManager {
             startBtn: document.getElementById('startBtn'),
             disconnectBtn: document.getElementById('disconnectBtn'),
             clearConversation: document.getElementById('clearConversation'),
-            logoutBtn: document.getElementById('logoutBtn'),
-            
-            // Feedback dialog
-            feedbackOverlay: document.getElementById('feedbackOverlay'),
-            feedbackContent: document.getElementById('feedbackContent'),
-            closeFeedbackBtn: document.getElementById('closeFeedbackBtn'),
-            newDebateBtn: document.getElementById('newDebateBtn')
+            logoutBtn: document.getElementById('logoutBtn')
         };
     }
 
@@ -191,21 +185,6 @@ export class UIManager {
             </div>
         `;
         this.elements.emptyState = document.getElementById('emptyState');
-    }
-
-    /**
-     * Show feedback dialog
-     */
-    showFeedbackDialog(feedback) {
-        this.elements.feedbackContent.innerHTML = `<p class="feedback-text">${feedback}</p>`;
-        this.elements.feedbackOverlay.classList.add('active');
-    }
-
-    /**
-     * Hide feedback dialog
-     */
-    hideFeedbackDialog() {
-        this.elements.feedbackOverlay.classList.remove('active');
     }
 
     /**

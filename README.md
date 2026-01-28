@@ -131,7 +131,3 @@ debate_ai_app/
 |----------|-------------|----------|
 | `DEEPGRAM_API_KEY` | Your Deepgram API key | Yes |
 | `PORT` | Server port (default: 3000) | No |
-
-## License
-
-MIT License

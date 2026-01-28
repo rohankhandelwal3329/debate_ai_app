@@ -58,26 +58,6 @@ class DebateApp {
             }
         });
 
-        // Feedback dialog
-        this.ui.elements.closeFeedbackBtn.addEventListener('click', () => {
-            this.ui.hideFeedbackDialog();
-            this.feedbackManager.clearFeedback();
-        });
-
-        this.ui.elements.newDebateBtn.addEventListener('click', () => {
-            this.ui.hideFeedbackDialog();
-            this.feedbackManager.clearFeedback();
-            this.ui.clearConversation();
-            this.startDebate();
-        });
-
-        // Close dialog on overlay click
-        this.ui.elements.feedbackOverlay.addEventListener('click', (e) => {
-            if (e.target === this.ui.elements.feedbackOverlay) {
-                this.ui.hideFeedbackDialog();
-                this.feedbackManager.clearFeedback();
-            }
-        });
     }
 
     /**
@@ -133,12 +113,7 @@ class DebateApp {
             // Check for auto-disconnect after audio actually finishes
             if (this.feedbackManager.shouldDisconnect()) {
                 this.feedbackManager.clearAutoDisconnect();
-
                 setTimeout(() => {
-                    const feedback = this.feedbackManager.getFeedback();
-                    if (feedback && feedback.trim()) {
-                        this.ui.showFeedbackDialog(feedback);
-                    }
                     this.forceDisconnect();
                 }, 500);
             }
@@ -263,13 +238,9 @@ class DebateApp {
     }
 
     /**
-     * Disconnect with feedback dialog
+     * Disconnect from the debate
      */
     disconnect() {
-        const feedback = this.feedbackManager.getFeedback();
-        if (feedback && feedback.trim()) {
-            this.ui.showFeedbackDialog(feedback);
-        }
         this.forceDisconnect();
     }
 
