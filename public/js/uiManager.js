@@ -50,7 +50,7 @@ export class UIManager {
     }
 
     /**
-     * Update connection status (only: ready, connected, disconnected)
+     * Update connection status (only: ready, connected, disconnected, debate-over)
      */
     setConnectionStatus(status) {
         this.elements.statusIndicator.className = 'status-indicator';
@@ -63,6 +63,10 @@ export class UIManager {
             case 'disconnected':
                 this.elements.statusIndicator.classList.add('disconnected');
                 this.elements.statusText.textContent = 'Disconnected';
+                break;
+            case 'debate-over':
+                this.elements.statusIndicator.classList.add('debate-over');
+                this.elements.statusText.textContent = 'Debate Over';
                 break;
             default:
                 this.elements.statusText.textContent = 'Ready to connect';
@@ -121,12 +125,15 @@ export class UIManager {
 
     /**
      * Set button states for disconnected state
+     * @param {boolean} resetStatus - Whether to reset status to 'ready' (default: true)
      */
-    setDisconnectedState() {
+    setDisconnectedState(resetStatus = true) {
         this.elements.startBtn.disabled = false;
         this.elements.startBtn.querySelector('span').textContent = 'Start Debate';
         this.elements.disconnectBtn.disabled = true;
-        this.setConnectionStatus('ready');
+        if (resetStatus) {
+            this.setConnectionStatus('ready');
+        }
     }
 
     /**

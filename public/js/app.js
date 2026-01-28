@@ -114,7 +114,7 @@ class DebateApp {
             if (this.feedbackManager.shouldDisconnect()) {
                 this.feedbackManager.clearAutoDisconnect();
                 setTimeout(() => {
-                    this.forceDisconnect();
+                    this.endDebate();
                 }, 500);
             }
         };
@@ -161,6 +161,7 @@ class DebateApp {
      */
     async startDebate() {
         try {
+            this.ui.setConnectionStatus('ready');
             this.ui.setConnectingState();
             this.ui.hideTurnIndicator();
 
@@ -238,25 +239,33 @@ class DebateApp {
     }
 
     /**
-     * Disconnect from the debate
+     * Manual disconnect from the debate (button click)
      */
     disconnect() {
-        this.forceDisconnect();
+        this.cleanupConnection();
+        this.ui.setDisconnectedState(false);
+        this.ui.setConnectionStatus('disconnected');
     }
 
     /**
-     * Force disconnect without showing feedback
+     * Auto-disconnect after debate ends with feedback
      */
-    forceDisconnect() {
+    endDebate() {
+        this.cleanupConnection();
+        this.ui.setDisconnectedState(false);
+        this.ui.setConnectionStatus('debate-over');
+    }
+
+    /**
+     * Clean up connection resources
+     */
+    cleanupConnection() {
         this.audioRecorder.stop();
         this.audioPlayer.destroy();
         this.wsManager.disconnect();
         this.feedbackManager.reset();
-
-        this.ui.setConnectionStatus('disconnected');
         this.ui.hideTurnIndicator();
         this.ui.removeVisualizerClass('active', 'speaking', 'user-speaking');
-        this.ui.setDisconnectedState();
     }
 
     /**
@@ -269,10 +278,10 @@ class DebateApp {
         this.audioPlayer.clear();
         this.feedbackManager.reset();
 
-        this.ui.setConnectionStatus('disconnected');
         this.ui.hideTurnIndicator();
         this.ui.removeVisualizerClass('active', 'speaking', 'user-speaking');
-        this.ui.setDisconnectedState();
+        this.ui.setDisconnectedState(false);
+        this.ui.setConnectionStatus('disconnected');
     }
 }
 
