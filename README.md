@@ -1,22 +1,31 @@
 # AI Debate Partner
 
-An AI-powered debate training tool that helps students improve their argumentation and debating skills through voice-based conversations.
+An AI-powered debate training tool that helps students improve their argumentation and debating skills through real-time voice conversations.
 
 ## Features
 
-- **Voice-based interaction**: Natural voice conversations powered by Deepgram's Voice Agent API
-- **Structured debate flow**: Topic selection, side picking, debate rounds, and feedback
-- **Real-time feedback**: Get personalized coaching on your debating performance
-- **Modern UI**: Beautiful, responsive interface with visual audio indicators
-- **Socio-political focus**: Designed for debates on social and political topics
+- **Voice-based Interaction**: Natural voice conversations powered by Deepgram's Voice Agent API
+- **Structured Debate Flow**: Topic selection, side picking, back-and-forth debate, and detailed feedback
+- **Detailed Feedback**: Get comprehensive coaching with specific strengths, areas to improve, and actionable recommendations
+- **Student Login**: Personalized experience with name, Panther ID, and email registration
+- **Modern Light UI**: Clean, responsive interface with real-time audio visualization
+- **Auto-disconnect**: Automatically ends session after AI delivers feedback
+- **Session Persistence**: Stay logged in during your browser session
 
 ## How It Works
 
-1. **Start the Debate**: Click "Start Debate" and allow microphone access
-2. **Choose Your Topic**: Tell the AI what socio-political topic you want to debate
-3. **Pick Your Side**: Choose which position you want to argue for
-4. **Debate!**: Present your arguments - the AI will take the opposing side and challenge your ideas respectfully
-5. **Get Feedback**: Say "done" or click "End & Get Feedback" for personalized coaching on your debating skills
+1. **Register**: Enter your name, Panther ID, and student email
+2. **Start the Debate**: Click "Start Debate" and allow microphone access
+3. **Choose Your Topic**: Tell the AI what topic you want to debate (socio-political topics work great)
+4. **Pick Your Side**: Choose which position you want to argue for
+5. **Debate!**: Present your arguments - the AI will take the opposing side and challenge your ideas respectfully
+6. **Get Feedback**: Say "done", "stop", or "finish" to receive detailed personalized coaching
+
+## Feedback Includes
+
+- **Strengths**: Specific effective arguments, good examples used, strong techniques
+- **Areas to Improve**: Weak points, logical gaps, missed opportunities
+- **Recommendations**: Concrete tips and techniques for your next debate
 
 ## Setup
 
@@ -27,19 +36,22 @@ An AI-powered debate training tool that helps students improve their argumentati
 
 ### Installation
 
-1. Clone or download this project
+1. Clone the repository:
+   ```bash
+   git clone <your-repo-url>
+   cd debate_ai_app
+   ```
 
 2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Configure your API key:
-   - Open the `.env` file
-   - Add your Deepgram API key:
-     ```
-     DEEPGRAM_API_KEY=your_api_key_here
-     ```
+3. Create a `.env` file with your Deepgram API key:
+   ```
+   DEEPGRAM_API_KEY=your_api_key_here
+   PORT=3000
+   ```
 
 4. Start the server:
    ```bash
@@ -55,38 +67,49 @@ An AI-powered debate training tool that helps students improve their argumentati
 
 ```
 debate_ai_app/
-├── server.js           # Express server for API key handling
-├── package.json        # Project dependencies
-├── .env               # Environment configuration (add your API key here)
-├── .env.example       # Example environment file
-├── README.md          # This file
+├── server.js              # Express server for API key proxy
+├── package.json           # Project dependencies
+├── .env                   # Environment variables (not committed)
+├── .env.example           # Example environment file
+├── .gitignore             # Git ignore rules
+├── README.md              # Documentation
 └── public/
-    ├── index.html     # Main HTML page
-    ├── styles.css     # Styling
-    └── app.js         # Frontend JavaScript (Deepgram integration)
+    ├── index.html         # Main HTML (hero page + debate interface)
+    ├── styles.css         # Light theme styling
+    └── js/
+        ├── app.js             # Main application orchestrator
+        ├── config.js          # Configuration and AI prompt
+        ├── audioRecorder.js   # Microphone handling and audio capture
+        ├── audioPlayer.js     # AI audio playback with queue management
+        ├── websocketManager.js # Deepgram WebSocket connection
+        ├── uiManager.js       # DOM manipulation and UI updates
+        ├── feedbackManager.js # Feedback detection and collection
+        ├── sessionManager.js  # User session storage
+        └── apiService.js      # Backend API communication
 ```
 
 ## Technology Stack
 
 - **Backend**: Node.js + Express
-- **Frontend**: Vanilla HTML, CSS, JavaScript
+- **Frontend**: Vanilla JavaScript (ES6 Modules), HTML5, CSS3
 - **Voice AI**: Deepgram Voice Agent API
 - **Speech Recognition**: Deepgram Nova-3
-- **Text-to-Speech**: Deepgram Aura-2
+- **Text-to-Speech**: Deepgram Aura-2 (Asteria voice)
+- **Audio Processing**: Web Audio API
 
 ## Tips for Better Debates
 
 - Use evidence and examples to support your points
 - Address counterarguments directly
 - Stay calm and focused on ideas, not emotions
-- Structure your arguments clearly
+- Structure your arguments clearly (claim, evidence, reasoning)
 - Practice speaking at a moderate pace
 
 ## Troubleshooting
 
 ### Microphone not working
 - Make sure you've granted microphone permissions in your browser
-- Check that your microphone is properly connected and selected as the input device
+- Check that your microphone is properly connected and selected
 
 ### Connection issues
 - Verify your Deepgram API key is correctly set in the `.env` file
@@ -95,8 +118,19 @@ debate_ai_app/
 
 ### No audio playback
 - Check your speaker/headphone volume
-- Make sure your browser supports Web Audio API
+- Try clicking somewhere on the page first (browsers require user interaction for audio)
 - Try refreshing the page
+
+### Debate not ending automatically
+- Make sure to say clear ending phrases like "done", "stop", or "finish"
+- The AI will give feedback and then automatically disconnect
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DEEPGRAM_API_KEY` | Your Deepgram API key | Yes |
+| `PORT` | Server port (default: 3000) | No |
 
 ## License
 
