@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Debate Partner</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hero Page -->
+    <div class="hero-page" id="heroPage">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <h1 class="hero-title">AI Debate Partner</h1>
+                <p class="hero-subtitle">Sharpen your argumentation skills with AI-powered debate practice</p>
+                
+                <form class="hero-form" id="studentForm">
+                    <div class="form-group">
+                        <label for="studentName">Full Name</label>
+                        <input type="text" id="studentName" name="studentName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pantherId">Panther ID</label>
+                        <input type="text" id="pantherId" name="pantherId" placeholder="Enter your Panther ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentEmail">Student Email</label>
+                        <input type="email" id="studentEmail" name="studentEmail" placeholder="Enter your student email" required>
+                    </div>
+                    <button type="submit" class="hero-btn">
+                        <span>Start Debating</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <polyline points="12 5 19 12 12 19"/>
+                        </svg>
+                    </button>
+                </form>
+                
+                <div class="hero-features">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            </svg>
+                        </div>
+                        <span>Voice Powered</span>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <span>Real-time Debate</span>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <span>Instant Feedback</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debate App (Hidden initially) -->
+    <div class="app-container" id="debateApp" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h1>AI Debate Partner</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info" id="userInfo">
+                    <span class="user-name" id="displayName"></span>
+                    <span class="user-id" id="displayId"></span>
+                </div>
+                <button class="logout-btn" id="logoutBtn" title="Exit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Instructions Panel (Left Side - Compact) -->
+        <aside class="instructions-panel">
+            <h3>How It Works</h3>
+            <ol class="instruction-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <strong>Start the Debate</strong>
+                        <p>Click "Start Debate" and allow microphone access</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <strong>Choose Your Topic</strong>
+                        <p>Tell the AI what socio-political topic you want to debate</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <strong>Pick Your Side</strong>
+                        <p>Choose which position you want to argue for</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <strong>Debate!</strong>
+                        <p>Present your arguments - the AI will challenge your ideas respectfully</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">5</span>
+                    <div class="step-content">
+                        <strong>Get Feedback</strong>
+                        <p>Say "done" or "stop" to end and receive personalized coaching</p>
+                    </div>
+                </li>
+            </ol>
+            <div class="tips-section">
+                <h4>Tips for Better Debates</h4>
+                <ul>
+                    <li>Use evidence and examples to support your points</li>
+                    <li>Address counterarguments directly</li>
+                    <li>Stay calm and focused on ideas, not emotions</li>
+                    <li>Structure your arguments clearly</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content (Right Side - Larger) -->
+        <main class="main-content">
+            <!-- Connection Status -->
+            <div class="status-card">
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="statusText">Ready to connect</span>
+                </div>
+            </div>
+
+            <!-- Turn Indicator (Only shows when it's user's turn) -->
+            <div class="turn-indicator" id="turnIndicator" style="display: none;">
+                <span class="turn-text">Your turn to speak</span>
+            </div>
+
+            <!-- Voice Visualization (Compact) -->
+            <div class="voice-section">
+                <div class="voice-visualizer" id="voiceVisualizer">
+                    <div class="visualizer-ring outer"></div>
+                    <div class="visualizer-ring middle"></div>
+                    <div class="visualizer-ring inner"></div>
+                    <div class="microphone-icon" id="microphoneIcon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Control Buttons (Inline with Voice) -->
+                <div class="controls-section">
+                    <button class="control-btn primary" id="startBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        <span>Start Debate</span>
+                    </button>
+                    <button class="control-btn danger" id="disconnectBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <span>Disconnect</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conversation Display (Larger) -->
+            <div class="conversation-section">
+                <div class="conversation-header">
+                    <h2>Debate Conversation</h2>
+                    <button class="clear-btn" id="clearConversation" title="Clear conversation">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="conversation-container" id="conversationContainer">
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <p>Start the debate to see the conversation here</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with ❤️ by CETLOE</p>
+        </footer>
+    </div>
+
+    <!-- Feedback Dialog -->
+    <div class="feedback-overlay" id="feedbackOverlay">
+        <div class="feedback-dialog" id="feedbackDialog">
+            <div class="feedback-header">
+                <div class="feedback-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h2>Debate Feedback</h2>
+                <p class="feedback-subtitle">Here's your personalized coaching feedback</p>
+            </div>
+            <div class="feedback-content" id="feedbackContent">
+                <!-- Feedback will be inserted here -->
+            </div>
+            <div class="feedback-actions">
+                <button class="feedback-btn secondary" id="newDebateBtn">Start New Debate</button>
+                <button class="feedback-btn primary" id="closeFeedbackBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
