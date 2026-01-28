@@ -38,9 +38,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`
+// Start server (only when not in Vercel)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
 ║   🎤 AI Debate Partner - Server Running                    ║
@@ -50,5 +51,9 @@ app.listen(PORT, () => {
 ║   Make sure to set your DEEPGRAM_API_KEY in .env file      ║
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
-    `);
-});
+        `);
+    });
+}
+
+// Export for Vercel
+module.exports = app;
