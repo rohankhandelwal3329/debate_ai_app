@@ -1,133 +1,177 @@
 # AI Debate Partner
 
-An AI-powered debate training tool that helps students improve their argumentation and debating skills through real-time voice conversations.
+An AI-powered voice debate practice application using Deepgram for speech-to-text/text-to-speech and Google Gemini for intelligent debate responses.
+
+**Production-ready for 400+ concurrent students.**
+
+## Architecture
+
+This application uses a "stitched APIs" approach for cost-efficiency:
+
+- **Speech-to-Text**: Deepgram Nova API
+- **LLM**: Google Gemini 2.0 Flash
+- **Text-to-Speech**: Deepgram Aura API
+- **Backend**: Python FastAPI with Gunicorn (4 workers)
+- **Frontend**: Next.js 15 (React 19) static export in `frontend/`; FastAPI serves `frontend/out`
 
 ## Features
 
-- **Voice-based Interaction**: Natural voice conversations powered by Deepgram's Voice Agent API
-- **Structured Debate Flow**: Topic selection, side picking, back-and-forth debate, and detailed feedback
-- **Detailed Feedback**: Get comprehensive coaching with specific strengths, areas to improve, and actionable recommendations
-- **Student Login**: Personalized experience with name, Panther ID, and email registration
-- **Modern Light UI**: Clean, responsive interface with real-time audio visualization
-- **Auto-disconnect**: Automatically ends session after AI delivers feedback
-- **Session Persistence**: Stay logged in during your browser session
-
-## How It Works
-
-1. **Register**: Enter your name, Panther ID, and student email
-2. **Start the Debate**: Click "Start Debate" and allow microphone access
-3. **Choose Your Topic**: Tell the AI what topic you want to debate (socio-political topics work great)
-4. **Pick Your Side**: Choose which position you want to argue for
-5. **Debate!**: Present your arguments - the AI will take the opposing side and challenge your ideas respectfully
-6. **Get Feedback**: Say "done", "stop", or "finish" to receive detailed personalized coaching
-
-## Feedback Includes
-
-- **Strengths**: Specific effective arguments, good examples used, strong techniques
-- **Areas to Improve**: Weak points, logical gaps, missed opportunities
-- **Recommendations**: Concrete tips and techniques for your next debate
-
-## Setup
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- A Deepgram API key ([Get one here](https://console.deepgram.com/signup))
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <your-repo-url>
-   cd debate_ai_app
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env` file with your Deepgram API key:
-   ```
-   DEEPGRAM_API_KEY=your_api_key_here
-   PORT=3000
-   ```
-
-4. Start the server:
-   ```bash
-   npm start
-   ```
-
-5. Open your browser and navigate to:
-   ```
-   http://localhost:3000
-   ```
+- Voice-based debate interaction (hold-to-speak)
+- Student login with name, Panther ID, and email
+- AI takes opposing position in debates
+- Detailed feedback on debate performance
+- Turn-based conversation flow
+- Session management with automatic cleanup
+- Rate limiting (prevents abuse)
+- Thread-safe session handling for concurrent users
 
 ## Project Structure
 
 ```
 debate_ai_app/
-├── server.js              # Express server for API key proxy
-├── package.json           # Project dependencies
-├── .env                   # Environment variables (not committed)
-├── .env.example           # Example environment file
-├── .gitignore             # Git ignore rules
-├── README.md              # Documentation
-└── public/
-    ├── index.html         # Main HTML (hero page + debate interface)
-    ├── styles.css         # Light theme styling
-    └── js/
-        ├── app.js             # Main application orchestrator
-        ├── config.js          # Configuration and AI prompt
-        ├── audioRecorder.js   # Microphone handling and audio capture
-        ├── audioPlayer.js     # AI audio playback with queue management
-        ├── websocketManager.js # Deepgram WebSocket connection
-        ├── uiManager.js       # DOM manipulation and UI updates
-        ├── feedbackManager.js # Feedback detection and collection
-        ├── sessionManager.js  # User session storage
-        └── apiService.js      # Backend API communication
+├── backend/                 # FastAPI API + serves static UI
+├── frontend/                # Next.js App Router (npm run build → frontend/out)
+├── .env.example
+└── README.md
 ```
 
-## Technology Stack
+## Setup
 
-- **Backend**: Node.js + Express
-- **Frontend**: Vanilla JavaScript (ES6 Modules), HTML5, CSS3
-- **Voice AI**: Deepgram Voice Agent API
-- **Speech Recognition**: Deepgram Nova-3
-- **Text-to-Speech**: Deepgram Aura-2 (Asteria voice)
-- **Audio Processing**: Web Audio API
+### Prerequisites
 
-## Tips for Better Debates
+- Python 3.11+
+- Node.js 20+ and npm (used automatically by `run.py` to build `frontend/out`)
+- Deepgram API key
+- Google Gemini API key
 
-- Use evidence and examples to support your points
-- Address counterarguments directly
-- Stay calm and focused on ideas, not emotions
-- Structure your arguments clearly (claim, evidence, reasoning)
-- Practice speaking at a moderate pace
+### Quick Start (Local Development)
 
-## Troubleshooting
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd debate_ai_app
+   ```
 
-### Microphone not working
-- Make sure you've granted microphone permissions in your browser
-- Check that your microphone is properly connected and selected
+2. Create `.env` in the **project root** (same folder as `run.py`, not inside `backend/`):
+   ```env
+   DEEPGRAM_API_KEY=your_deepgram_api_key
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+   The app loads this file by absolute path so keys work even when the server runs from the `backend/` directory.
 
-### Connection issues
-- Verify your Deepgram API key is correctly set in the `.env` file
-- Check your internet connection
-- Make sure no firewall is blocking WebSocket connections
+3. Run the app:
+   ```bash
+   python run.py
+   ```
 
-### No audio playback
-- Check your speaker/headphone volume
-- Try clicking somewhere on the page first (browsers require user interaction for audio)
-- Try refreshing the page
+   This will:
+   - Install Python dependencies automatically (if missing)
+   - Install frontend npm dependencies and **build** the Next.js app when `frontend/out` is missing, or when `package.json` / `package-lock.json` is newer than the last build (requires **Node.js 20+** and **npm** on your PATH)
+   - Start the FastAPI server (API + static UI on the same port)
+   - Open the app in your browser
 
-### Debate not ending automatically
-- Make sure to say clear ending phrases like "done", "stop", or "finish"
-- The AI will give feedback and then automatically disconnect
+   Flags: `--skip-frontend-build` (only start the server; use if you already ran `npm run build`), `--force-frontend-build` (always rebuild the UI).
+
+   To build the frontend only by hand: `cd frontend && npm install && npm run build`
+
+### Next.js dev server (optional)
+
+For hot reload on port 3000 while the API runs on 8000:
+
+```bash
+cd frontend
+cp .env.example .env.local
+# Set NEXT_PUBLIC_API_BASE=http://127.0.0.1:8000 and NEXT_PUBLIC_WS_ORIGIN=ws://127.0.0.1:8000
+npm run dev
+```
+
+### Manual Setup (Alternative)
+
+1. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+
+3. Run the server:
+   ```bash
+   cd backend
+   uvicorn main:app --reload
+   ```
+
+4. Open http://localhost:8000 in your browser
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/start` | POST | Start a new debate session |
+| `/api/turn` | POST | Process a debate turn (audio/text) |
+| `/api/session/{id}` | GET | Get session details |
+| `/api/session/{id}` | DELETE | End and delete session |
+| `/api/health` | GET | Health check |
+
+## How It Works
+
+1. **Login**: Student enters name, Panther ID, and email
+2. **Start Debate**: Click "Start Debate" to begin
+3. **AI Greeting**: AI introduces itself and asks for a topic
+4. **Topic Selection**: Student tells AI what they want to debate
+5. **Side Selection**: Student chooses their position
+6. **Debate**: Hold the record button to speak, release to send
+7. **Feedback**: Say "done" or click "End Debate" for coaching feedback
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DEEPGRAM_API_KEY` | Your Deepgram API key | Yes |
-| `PORT` | Server port (default: 3000) | No |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `DEEPGRAM_API_KEY` | Yes | - | Deepgram API key for STT/TTS |
+| `GEMINI_API_KEY` | Yes | - | Google Gemini API key |
+| `GEMINI_MODEL` | No | `gemini-2.5-flash` | Model id (e.g. `gemini-1.5-flash` if you hit quota limits) |
+| `PORT` | No | 8000 | Server port |
+| `DEBUG` | No | false | Enable debug mode |
+| `MAX_SESSIONS` | No | 1000 | Max concurrent debate sessions |
+| `SESSION_TIMEOUT_HOURS` | No | 2 | Session expiry time |
+
+## Production Features
+
+- **Multi-worker**: Gunicorn with 4 Uvicorn workers for handling concurrent requests
+- **Rate Limiting**: 10 debate starts/min, 30 turns/min per IP
+- **Session Management**: Thread-safe with automatic cleanup every 5 minutes
+- **Logging**: Structured logging for monitoring and debugging
+- **Health Checks**: `/api/health` and `/api/stats` endpoints for monitoring
+- **Resource Limits**: Tune process and host limits to prevent resource exhaustion
+
+## Technology Stack
+
+- **Backend**: FastAPI, Uvicorn, httpx
+- **LLM**: Google Generative AI (Gemini)
+- **Speech**: Deepgram Nova (STT) + Aura (TTS)
+- **Frontend**: Next.js 15, React 19, TypeScript (static export)
+- **Deployment**: Python + Next.js static export (Kubernetes-ready path can be added later)
+
+## Troubleshooting
+
+### Gemini 429 / quota / “limit: 0” (free tier)
+
+- Default is **`gemini-2.5-flash`**. If your project hits **limit: 0** or heavy 429s on the free tier, set `GEMINI_MODEL=gemini-1.5-flash` or enable billing.
+- After many requests, wait ~1 minute (per-minute limits). See [Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits).
+
+## Planned Features
+
+- **User Authentication**: Login system for students
+- **Database Storage**: Store conversations for review and analytics
+- **Admin Dashboard**: View student progress and debate history
+
+## License
+
+MIT License
+
+## Credits
+
+Made with care by CETLOE

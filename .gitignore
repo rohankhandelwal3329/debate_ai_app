@@ -21,3 +21,24 @@ npm-debug.log*
 # Build output
 dist/
 build/
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+.eggs/
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.env.local
+.env.*.local
