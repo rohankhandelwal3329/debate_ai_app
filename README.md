@@ -8,29 +8,79 @@ An AI-powered voice debate practice application using Deepgram for speech-to-tex
 
 This application uses a "stitched APIs" approach for cost-efficiency:
 
-- **Speech-to-Text**: Deepgram Nova API
-- **LLM**: Google Gemini 2.0 Flash
+- **Speech-to-Text**: Deepgram Nova API (live WebSocket streaming + blob fallback)
+- **LLM**: Google Gemini 2.5 Flash
 - **Text-to-Speech**: Deepgram Aura API
-- **Backend**: Python FastAPI with Gunicorn (4 workers)
-- **Frontend**: Next.js 15 (React 19) static export in `frontend/`; FastAPI serves `frontend/out`
+- **Backend**: Python FastAPI with Gunicorn (4 workers) + modular routers
+- **Frontend**: Next.js 15 (React 19) with custom hooks + component composition; static export in `frontend/out`; FastAPI serves static files
+
+### Backend Architecture
+- **Route Modularization**: API endpoints split across `routers/debate.py` (start/turn) and `routers/session.py` (session/health/stats/WebSocket)
+- **Separation of Concerns**: Pydantic models (`models.py`), Gemini prompts (`prompts.py`), rate limiter (`limiter.py`)
+- **Dependency Injection**: Shared `limiter` instance and service classes
+
+### Frontend Architecture
+- **Custom Hooks**: `useDebateSession` hook encapsulates all state, refs, effects, and event handlers
+- **Component Composition**: `StudioPage` (85 lines) delegates to sub-components (`ChatPanel`, `ControlDock`, `HelpModal`, `StatusBadge`)
+- **Type Safety**: Shared types in `lib/types.ts` (`Conn`, `VizState`, `ChatMsg`)
 
 ## Features
 
-- Voice-based debate interaction (hold-to-speak)
-- Student login with name, Panther ID, and email
-- AI takes opposing position in debates
-- Detailed feedback on debate performance
-- Turn-based conversation flow
-- Session management with automatic cleanup
-- Rate limiting (prevents abuse)
-- Thread-safe session handling for concurrent users
+- **Voice-based Debate**: Hold-to-speak interaction with auto-listen (AI speaks → app listens automatically)
+- **Live STT Streaming**: Deepgram WebSocket with 5-second silence detection; blob fallback if WebSocket unavailable
+- **Auto-Turn Submission**: Debate turns auto-submit after 5 seconds of silence (no manual button clicks needed after initial "Start")
+- **Student Login**: Name, Panther ID, and email authentication
+- **AI Opposition**: AI takes the opposite position in debates with intelligent responses
+- **Debate Coaching**: Detailed feedback on debate performance after completion
+- **Turn-based Conversation**: Structured debate flow with alternating speakers
+- **Session Persistence**: Refreshing the page restores an in-progress debate automatically
+- **Rate Limiting**: 10 debate starts/min, 30 turns/min per IP (prevents abuse)
+- **Thread-safe Sessions**: Concurrent user handling with automatic cleanup every 5 minutes
 
 ## Project Structure
 
 ```
 debate_ai_app/
-├── backend/                 # FastAPI API + serves static UI
-├── frontend/                # Next.js App Router (npm run build → frontend/out)
+├── run.py                            # One-command launcher (builds + starts server)
+├── backend/
+│   ├── main.py                       # FastAPI app setup, CORS, lifespan, static file serving
+│   ├── config.py                     # Settings (env vars)
+│   ├── models.py                     # Pydantic request/response models
+│   ├── prompts.py                    # Gemini system prompt + debate constants
+│   ├── limiter.py                    # Shared slowapi rate-limiter instance
+│   ├── gemini_service.py             # GeminiService class (chat, phase logic)
+│   ├── deepgram_service.py           # DeepgramService (STT + TTS)
+│   ├── session_manager.py            # Thread-safe in-memory session store
+│   ├── live_stt.py                   # Live STT WebSocket proxy helper
+│   ├── requirements.txt
+│   └── routers/
+│       ├── __init__.py               # Router package marker
+│       ├── debate.py                 # POST /api/start, POST /api/turn
+│       └── session.py                # GET/DELETE /api/session, /api/health, /api/stats, WS /ws/stt
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx                  # Landing page route
+│   │   └── studio/page.tsx           # Debate studio route
+│   ├── components/
+│   │   ├── LandingPage.tsx           # Student login UI
+│   │   ├── StudioPage.tsx            # Top-level studio shell (~85 lines)
+│   │   ├── Aurora.tsx / Orb.tsx      # Background visual effects
+│   │   └── studio/
+│   │       ├── ChatPanel.tsx         # Conversation history + streaming text
+│   │       ├── ControlDock.tsx       # Orb visualizer + Start/Record/End buttons
+│   │       ├── HelpModal.tsx         # "How it works" dialog
+│   │       └── StatusBadge.tsx       # Connection state pill
+│   ├── hooks/
+│   │   └── useDebateSession.ts       # All debate state, refs, effects & handlers
+│   ├── lib/
+│   │   ├── api.ts                    # Typed API client
+│   │   ├── audioPlayer.ts            # Base64 audio playback with streaming text
+│   │   ├── audioRecorder.ts          # MediaRecorder wrapper
+│   │   ├── liveSttSession.ts         # Deepgram live STT WebSocket session
+│   │   ├── sessionStorage.ts         # User + debate session persistence
+│   │   └── types.ts                  # Shared TypeScript types (Conn, VizState, ChatMsg)
+│   ├── package.json
+│   └── tsconfig.json
 ├── .env.example
 └── README.md
 ```
@@ -110,21 +160,26 @@ npm run dev
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/start` | POST | Start a new debate session |
-| `/api/turn` | POST | Process a debate turn (audio/text) |
-| `/api/session/{id}` | GET | Get session details |
-| `/api/session/{id}` | DELETE | End and delete session |
+| `/api/start` | POST | Start a new debate session; returns greeting audio + text |
+| `/api/turn` | POST | Process a debate turn (audio base64 or plain text); returns AI response + audio |
+| `/api/session/{id}` | GET | Get session details and conversation history |
+| `/api/session/{id}` | DELETE | End and delete a session |
 | `/api/health` | GET | Health check |
+| `/api/stats` | GET | Active session count and server stats |
+| `/ws/stt` | WebSocket | Live speech-to-text proxy (Deepgram live streaming) |
 
 ## How It Works
 
 1. **Login**: Student enters name, Panther ID, and email
-2. **Start Debate**: Click "Start Debate" to begin
-3. **AI Greeting**: AI introduces itself and asks for a topic
-4. **Topic Selection**: Student tells AI what they want to debate
-5. **Side Selection**: Student chooses their position
-6. **Debate**: Hold the record button to speak, release to send
-7. **Feedback**: Say "done" or click "End Debate" for coaching feedback
+2. **Start Debate**: Click "Start Debate" → FastAPI creates a session ID (persisted in sessionStorage)
+3. **AI Greeting**: AI greets and asks for a debate topic + student position (audio streamed + played with visual Orb feedback)
+4. **Auto-listen**: After AI finishes speaking, app automatically starts listening (orb changes color)
+5. **Speak & Submit**: Student speaks naturally; 5 seconds of silence auto-submits their turn without needing to press a button
+6. **Live Transcription**: Student's words appear in real-time via Deepgram WebSocket; if WebSocket fails, falls back to blob recording
+7. **AI Response**: Gemini generates debate response; text streams into UI while audio plays
+8. **Loop Repeats**: Unless debate is complete, auto-listen triggers again
+9. **Feedback**: Student says "done" or clicks "End Debate" button; AI provides detailed coaching feedback
+10. **Session Persistence**: Refreshing the page restores the debate automatically using saved session ID
 
 ## Environment Variables
 
@@ -149,11 +204,12 @@ npm run dev
 
 ## Technology Stack
 
-- **Backend**: FastAPI, Uvicorn, httpx
-- **LLM**: Google Generative AI (Gemini)
-- **Speech**: Deepgram Nova (STT) + Aura (TTS)
+- **Backend**: FastAPI, Uvicorn/Gunicorn, httpx, slowapi, Pydantic v2
+- **LLM**: Google Generative AI (Gemini 2.5 Flash)
+- **Speech**: Deepgram Nova-3 (STT, live WebSocket) + Aura (TTS)
 - **Frontend**: Next.js 15, React 19, TypeScript (static export)
-- **Deployment**: Python + Next.js static export (Kubernetes-ready path can be added later)
+- **Architecture**: Single-port deployment (FastAPI serves static + API), Kubernetes-ready
+- **Concurrency**: Thread-safe session management, multi-worker Gunicorn setup
 
 ## Troubleshooting
 
@@ -161,7 +217,10 @@ npm run dev
 
 - Default is **`gemini-2.5-flash`**. If your project hits **limit: 0** or heavy 429s on the free tier, set `GEMINI_MODEL=gemini-1.5-flash` or enable billing.
 - After many requests, wait ~1 minute (per-minute limits). See [Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits).
+### Live STT not working
 
+- The browser must be served over **HTTPS** (or `localhost`) for microphone access.
+- If the WebSocket connection to `/ws/stt` fails, the app silently falls back to blob-based audio recording and transcribes on the server side — debate functionality is unaffected.
 ## Planned Features
 
 - **User Authentication**: Login system for students
